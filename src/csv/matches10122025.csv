@@ -1,0 +1,41 @@
+match_id,slug,start_date,end_date,tournament_id,tournament_name,stage_name,bo_type,tier,tier_rank,team1_id,team1_name,team1_score_bo,team2_id,team2_name,team2_score_bo,winner_team_id,winner_name,loser_team_id,loser_name
+104559,g2-vs-falcons-esports-07-12-2025,2025-12-07T19:00:00.000+00:00,2025-12-07T21:59:16.692+00:00,3579,StarLadder Budapest Major 2025,,3,s,1,793,G2,1,2713,Falcons,2,2713,Falcons,793,G2
+104558,faze-vs-passion-ua-07-12-2025,2025-12-07T16:30:00.000+00:00,2025-12-07T18:34:00.228+00:00,3579,StarLadder Budapest Major 2025,,3,s,1,791,FaZe,2,7631,Passion UA,0,791,FaZe,7631,Passion UA
+104557,b8-vs-natus-vincere-07-12-2025,2025-12-07T14:00:00.000+00:00,2025-12-07T16:02:09.717+00:00,3579,StarLadder Budapest Major 2025,,3,s,1,1539,B8,0,787,Natus Vincere,2,787,Natus Vincere,1539,B8
+104555,g2-vs-the-mongolz-06-12-2025,2025-12-06T20:00:00.000+00:00,2025-12-06T21:49:05.187+00:00,3579,StarLadder Budapest Major 2025,,3,s,1,793,G2,0,736,The MongolZ,2,736,The MongolZ,793,G2
+104556,3dmax-vs-faze-06-12-2025,2025-12-06T19:20:00.000+00:00,2025-12-06T20:59:41.506+00:00,3579,StarLadder Budapest Major 2025,,3,s,1,696,3DMAX,0,791,FaZe,2,791,FaZe,696,3DMAX
+104553,passion-ua-vs-imperial-06-12-2025,2025-12-06T16:50:00.000+00:00,2025-12-06T18:58:39.010+00:00,3579,StarLadder Budapest Major 2025,,3,s,1,7631,Passion UA,2,1430,Imperial,0,7631,Passion UA,1430,Imperial
+104554,mousesports-vs-falcons-esports-06-12-2025,2025-12-06T16:35:00.000+00:00,2025-12-06T19:43:28.339+00:00,3579,StarLadder Budapest Major 2025,,3,s,1,765,MOUZ,2,2713,Falcons,1,765,MOUZ,2713,Falcons
+104551,b8-vs-pain-gaming-06-12-2025,2025-12-06T14:00:00.000+00:00,2025-12-06T16:37:23.525+00:00,3579,StarLadder Budapest Major 2025,,3,s,1,1539,B8,2,637,paiN,0,1539,B8,637,paiN
+104552,natus-vincere-vs-vitality-06-12-2025,2025-12-06T14:00:00.000+00:00,2025-12-06T16:10:32.849+00:00,3579,StarLadder Budapest Major 2025,,3,s,1,787,Natus Vincere,0,667,Vitality,2,667,Vitality,787,Natus Vincere
+104550,furia-vs-g2-05-12-2025,2025-12-05T19:50:00.000+00:00,2025-12-05T22:02:57.996+00:00,3579,StarLadder Budapest Major 2025,,3,s,1,648,FURIA,2,793,G2,0,648,FURIA,793,G2
+104549,parivision-vs-3dmax-05-12-2025,2025-12-05T18:05:00.000+00:00,2025-12-05T21:18:53.940+00:00,3579,StarLadder Budapest Major 2025,,3,s,1,8171,PARIVISION,1,696,3DMAX,2,696,3DMAX,8171,PARIVISION
+104547,mousesports-vs-spirit-05-12-2025,2025-12-05T16:15:00.000+00:00,2025-12-05T19:27:30.359+00:00,3579,StarLadder Budapest Major 2025,,3,s,1,765,MOUZ,1,654,Spirit,2,654,Spirit,765,MOUZ
+104548,passion-ua-vs-liquid-05-12-2025,2025-12-05T15:50:00.000+00:00,2025-12-05T17:46:46.470+00:00,3579,StarLadder Budapest Major 2025,,3,s,1,7631,Passion UA,2,790,Liquid,0,7631,Passion UA,790,Liquid
+104483,nip-vs-3dmax-02-12-2025,2025-12-02T19:25:00.000+00:00,2025-12-02T21:00:37.761+00:00,4863,StarLadder Budapest Major 2025 Stage 2,,3,s,1,785,Ninjas in Pyjamas,0,696,3DMAX,2,696,3DMAX,785,Ninjas in Pyjamas
+104482,liquid-vs-astralis-02-12-2025,2025-12-02T17:10:00.000+00:00,2025-12-02T18:51:37.161+00:00,4863,StarLadder Budapest Major 2025 Stage 2,,3,s,1,790,Liquid,2,794,Astralis,0,790,Liquid,794,Astralis
+104481,passion-ua-vs-m80-cs-go-02-12-2025,2025-12-02T14:00:00.000+00:00,2025-12-02T16:45:42.947+00:00,4863,StarLadder Budapest Major 2025 Stage 2,,3,s,1,7631,Passion UA,2,7430,M80,1,7631,Passion UA,7430,M80
+104479,b8-vs-3dmax-01-12-2025,2025-12-01T20:50:00.000+00:00,2025-12-01T23:22:58.050+00:00,4863,StarLadder Budapest Major 2025 Stage 2,,3,s,1,1539,B8,2,696,3DMAX,1,1539,B8,696,3DMAX
+104480,liquid-vs-tyloo-cs-go-01-12-2025,2025-12-01T20:00:00.000+00:00,2025-12-01T22:59:12.066+00:00,4863,StarLadder Budapest Major 2025 Stage 2,,3,s,1,790,Liquid,2,757,TYLOO,1,790,Liquid,757,TYLOO
+104477,imperial-vs-m80-cs-go-01-12-2025,2025-12-01T17:25:00.000+00:00,2025-12-01T20:20:26.206+00:00,4863,StarLadder Budapest Major 2025 Stage 2,,3,s,1,1430,Imperial,2,7430,M80,1,1430,Imperial,7430,M80
+104478,aurora-gaming-vs-astralis-01-12-2025,2025-12-01T16:20:00.000+00:00,2025-12-01T19:31:11.221+00:00,4863,StarLadder Budapest Major 2025 Stage 2,,3,s,1,3598,Aurora,1,794,Astralis,2,794,Astralis,3598,Aurora
+104475,parivision-vs-nip-01-12-2025,2025-12-01T14:20:00.000+00:00,2025-12-01T16:57:42.905+00:00,4863,StarLadder Budapest Major 2025 Stage 2,,3,s,1,8171,PARIVISION,2,785,Ninjas in Pyjamas,0,8171,PARIVISION,785,Ninjas in Pyjamas
+104476,fnatic-vs-passion-ua-01-12-2025,2025-12-01T14:00:00.000+00:00,2025-12-01T15:57:39.555+00:00,4863,StarLadder Budapest Major 2025 Stage 2,,3,s,1,786,fnatic,0,7631,Passion UA,2,7631,Passion UA,786,fnatic
+104473,natus-vincere-vs-b8-30-11-2025,2025-11-30T19:05:00.000+00:00,2025-11-30T20:49:13.091+00:00,4863,StarLadder Budapest Major 2025 Stage 2,,3,s,1,787,Natus Vincere,2,1539,B8,0,787,Natus Vincere,1539,B8
+104472,mibr-vs-liquid-30-11-2025,2025-11-30T18:30:00.000+00:00,2025-11-30T20:48:41.285+00:00,4863,StarLadder Budapest Major 2025 Stage 2,,3,s,1,755,MIBR,0,790,Liquid,2,790,Liquid,755,MIBR
+104474,flyquest-vs-astralis-30-11-2025,2025-11-30T16:20:00.000+00:00,2025-11-30T18:11:29.621+00:00,4863,StarLadder Budapest Major 2025 Stage 2,,3,s,1,10398,FlyQuest,0,794,Astralis,2,794,Astralis,10398,FlyQuest
+104471,faze-vs-nip-30-11-2025,2025-11-30T16:15:00.000+00:00,2025-11-30T18:40:02.751+00:00,4863,StarLadder Budapest Major 2025 Stage 2,,3,s,1,791,FaZe,2,785,Ninjas in Pyjamas,0,791,FaZe,785,Ninjas in Pyjamas
+104324,parivision-vs-legacy-br-27-11-2025,2025-11-27T19:10:00.000+00:00,2025-11-27T22:41:00.926+00:00,4473,StarLadder Budapest Major 2025 Stage 1,,3,s,1,8171,PARIVISION,2,8118,Legacy,1,8171,PARIVISION,8118,Legacy
+104323,nrg-vs-imperial-27-11-2025,2025-11-27T17:05:00.000+00:00,2025-11-27T18:50:36.395+00:00,4473,StarLadder Budapest Major 2025 Stage 1,,3,s,1,751,NRG,0,1430,Imperial,2,1430,Imperial,751,NRG
+104322,fluxo-vs-faze-27-11-2025,2025-11-27T14:00:00.000+00:00,2025-11-27T16:50:31.200+00:00,4473,StarLadder Budapest Major 2025 Stage 1,,3,s,1,3661,Fluxo,1,791,FaZe,2,791,FaZe,3661,Fluxo
+104320,parivision-vs-gamerlegion-26-11-2025,2025-11-26T19:40:00.000+00:00,2025-11-26T22:09:20.585+00:00,4473,StarLadder Budapest Major 2025 Stage 1,,3,s,1,8171,PARIVISION,2,594,GamerLegion,0,8171,PARIVISION,594,GamerLegion
+104321,imperial-vs-the-huns-esports-26-11-2025,2025-11-26T19:25:00.000+00:00,2025-11-26T21:31:31.919+00:00,4473,StarLadder Budapest Major 2025 Stage 1,,3,s,1,1430,Imperial,2,9127,The Huns,0,1430,Imperial,9127,The Huns
+104318,nrg-vs-fnatic-26-11-2025,2025-11-26T16:20:00.000+00:00,2025-11-26T19:04:05.420+00:00,4473,StarLadder Budapest Major 2025 Stage 1,,3,s,1,751,NRG,1,786,fnatic,2,786,fnatic,751,NRG
+104319,red-canids-cs-go-vs-faze-26-11-2025,2025-11-26T16:00:00.000+00:00,2025-11-26T19:19:13.456+00:00,4473,StarLadder Budapest Major 2025 Stage 1,,3,s,1,554,RED Canids,1,791,FaZe,2,791,FaZe,554,RED Canids
+104317,b8-vs-legacy-br-26-11-2025,2025-11-26T14:05:00.000+00:00,2025-11-26T15:57:12.375+00:00,4473,StarLadder Budapest Major 2025 Stage 1,,3,s,1,1539,B8,2,8118,Legacy,0,1539,B8,8118,Legacy
+104316,fluxo-vs-nip-26-11-2025,2025-11-26T14:00:00.000+00:00,2025-11-26T15:38:41.822+00:00,4473,StarLadder Budapest Major 2025 Stage 1,,3,s,1,3661,Fluxo,0,785,Ninjas in Pyjamas,2,785,Ninjas in Pyjamas,3661,Fluxo
+104315,the-huns-esports-vs-lynn-vision-25-11-2025,2025-11-25T18:40:00.000+00:00,2025-11-25T20:42:09.784+00:00,4473,StarLadder Budapest Major 2025 Stage 1,,3,s,1,9127,The Huns,2,476,Lynn Vision,0,9127,The Huns,476,Lynn Vision
+104314,m80-cs-go-vs-nrg-25-11-2025,2025-11-25T18:05:00.000+00:00,2025-11-25T20:14:00.311+00:00,4473,StarLadder Budapest Major 2025 Stage 1,,3,s,1,7430,M80,2,751,NRG,0,7430,M80,751,NRG
+104312,flyquest-vs-fluxo-25-11-2025,2025-11-25T16:25:00.000+00:00,2025-11-25T17:49:15.926+00:00,4473,StarLadder Budapest Major 2025 Stage 1,,3,s,1,10398,FlyQuest,2,3661,Fluxo,0,10398,FlyQuest,3661,Fluxo
+104313,gamerlegion-vs-rare-atom-25-11-2025,2025-11-25T16:10:00.000+00:00,2025-11-25T18:14:25.554+00:00,4473,StarLadder Budapest Major 2025 Stage 1,,3,s,1,594,GamerLegion,2,2506,Rare Atom,0,594,GamerLegion,2506,Rare Atom
+103096,furia-vs-falcons-esports-16-11-2025,2025-11-16T08:10:00.000+00:00,2025-11-16T13:30:40.857+00:00,3578,BLAST Rivals Fall 2025,,5,s,1,648,FURIA,3,2713,Falcons,1,648,FURIA,2713,Falcons

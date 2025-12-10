@@ -1,0 +1,113 @@
+match_id,map_id,map_number,map_name,rounds_count,team1_name,team2_name,map_winner_name,map_winner_score,map_loser_name,map_loser_score
+104559,151540,3,de_dust2,23,G2,Falcons,Team Falcons,13,G2 Esports,10
+104559,151541,2,de_inferno,17,G2,Falcons,Team Falcons,13,G2 Esports,4
+104559,151542,1,de_ancient,22,G2,Falcons,G2 Esports,13,Team Falcons,9
+104558,151544,2,de_mirage,24,FaZe,Passion UA,FaZe Clan,13,Passion UA,11
+104558,151545,1,de_overpass,24,FaZe,Passion UA,FaZe Clan,13,Passion UA,11
+104557,151523,2,de_train,30,B8,Natus Vincere,Natus Vincere,16,B8 Esports,14
+104557,151524,1,de_ancient,17,B8,Natus Vincere,Natus Vincere,13,B8 Esports,4
+104555,151529,2,de_dust2,19,G2,The MongolZ,The MongolZ,13,G2 Esports,6
+104555,151530,1,de_ancient,17,G2,The MongolZ,The MongolZ,13,G2 Esports,4
+104556,151526,2,de_inferno,18,3DMAX,FaZe,FaZe Clan,13,3DMAX,5
+104556,151527,1,de_dust2,19,3DMAX,FaZe,FaZe Clan,13,3DMAX,6
+104553,151532,2,de_dust2,23,Passion UA,Imperial,Passion UA,13,Imperial Esports,10
+104553,151533,1,de_inferno,21,Passion UA,Imperial,Passion UA,13,Imperial Esports,8
+104554,151534,3,de_nuke,23,MOUZ,Falcons,MOUZ,13,Team Falcons,10
+104554,151535,2,de_inferno,19,MOUZ,Falcons,MOUZ,13,Team Falcons,6
+104554,151536,1,de_mirage,24,MOUZ,Falcons,Team Falcons,13,MOUZ,11
+104551,151511,2,de_ancient,28,B8,paiN,B8 Esports,16,paiN Gaming,12
+104551,151512,1,de_dust2,35,B8,paiN,B8 Esports,19,paiN Gaming,16
+104552,151514,2,de_train,24,Natus Vincere,Vitality,Team Vitality,13,Natus Vincere,11
+104552,151515,1,de_inferno,24,Natus Vincere,Vitality,Team Vitality,13,Natus Vincere,11
+104550,151520,2,de_overpass,23,FURIA,G2,FURIA,13,G2 Esports,10
+104550,151521,1,de_inferno,19,FURIA,G2,FURIA,13,G2 Esports,6
+104549,151516,3,de_ancient,21,PARIVISION,3DMAX,3DMAX,13,PARIVISION,8
+104549,151517,2,de_inferno,21,PARIVISION,3DMAX,3DMAX,13,PARIVISION,8
+104549,151518,1,de_dust2,28,PARIVISION,3DMAX,PARIVISION,16,3DMAX,12
+104547,151504,3,de_overpass,24,MOUZ,Spirit,Team Spirit,13,MOUZ,11
+104547,151505,2,de_train,23,MOUZ,Spirit,MOUZ,13,Team Spirit,10
+104547,151506,1,de_mirage,18,MOUZ,Spirit,Team Spirit,13,MOUZ,5
+104548,151502,2,de_mirage,23,Passion UA,Liquid,Passion UA,13,Team Liquid,10
+104548,151503,1,de_train,24,Passion UA,Liquid,Passion UA,13,Team Liquid,11
+104483,150218,2,de_train,21,Ninjas in Pyjamas,3DMAX,3DMAX,13,Ninjas in Pyjamas,8
+104483,150219,1,de_ancient,16,Ninjas in Pyjamas,3DMAX,3DMAX,13,Ninjas in Pyjamas,3
+104483,151482,3,,,Ninjas in Pyjamas,3DMAX,,,,
+104482,150215,2,de_mirage,22,Liquid,Astralis,Team Liquid,13,Astralis,9
+104482,150216,1,de_nuke,20,Liquid,Astralis,Team Liquid,13,Astralis,7
+104482,151483,3,,,Liquid,Astralis,,,,
+104481,150211,3,de_train,20,Passion UA,M80,Passion UA,13,M80,7
+104481,150212,2,de_inferno,18,Passion UA,M80,Passion UA,13,M80,5
+104481,150213,1,de_mirage,24,Passion UA,M80,M80,13,Passion UA,11
+104479,150205,3,de_dust2,21,B8,3DMAX,B8 Esports,13,3DMAX,8
+104479,150206,2,de_ancient,22,B8,3DMAX,B8 Esports,13,3DMAX,9
+104479,150207,1,de_train,16,B8,3DMAX,3DMAX,13,B8 Esports,3
+104480,150208,3,de_inferno,30,Liquid,TYLOO,Team Liquid,16,TYLOO,14
+104480,150209,2,de_train,18,Liquid,TYLOO,Team Liquid,13,TYLOO,5
+104480,150210,1,de_ancient,22,Liquid,TYLOO,TYLOO,13,Team Liquid,9
+104477,150199,3,de_train,24,Imperial,M80,Imperial Esports,13,M80,11
+104477,150200,2,de_dust2,15,Imperial,M80,M80,13,Imperial Esports,2
+104477,150201,1,de_mirage,24,Imperial,M80,Imperial Esports,13,M80,11
+104478,150202,3,de_mirage,24,Aurora,Astralis,Astralis,13,Aurora Gaming,11
+104478,150203,2,de_train,21,Aurora,Astralis,Astralis,13,Aurora Gaming,8
+104478,150204,1,de_nuke,24,Aurora,Astralis,Aurora Gaming,13,Astralis,11
+104475,150194,2,de_train,28,PARIVISION,Ninjas in Pyjamas,PARIVISION,16,Ninjas in Pyjamas,12
+104475,150195,1,de_dust2,35,PARIVISION,Ninjas in Pyjamas,PARIVISION,19,Ninjas in Pyjamas,16
+104475,151477,3,,,PARIVISION,Ninjas in Pyjamas,,,,
+104476,150197,2,de_inferno,20,fnatic,Passion UA,Passion UA,13,Fnatic,7
+104476,150198,1,de_overpass,24,fnatic,Passion UA,Passion UA,13,Fnatic,11
+104476,151476,3,,,fnatic,Passion UA,,,,
+104473,150188,2,de_mirage,21,Natus Vincere,B8,Natus Vincere,13,B8 Esports,8
+104473,150189,1,de_train,19,Natus Vincere,B8,Natus Vincere,13,B8 Esports,6
+104473,151479,3,,,Natus Vincere,B8,,,,
+104472,150185,2,de_mirage,36,MIBR,Liquid,Team Liquid,19,MIBR,17
+104472,150186,1,de_inferno,18,MIBR,Liquid,Team Liquid,13,MIBR,5
+104472,151480,3,,,MIBR,Liquid,,,,
+104474,150191,2,de_overpass,24,FlyQuest,Astralis,Astralis,13,FlyQuest,11
+104474,150192,1,de_mirage,18,FlyQuest,Astralis,Astralis,13,FlyQuest,5
+104474,151478,3,,,FlyQuest,Astralis,,,,
+104471,150182,2,de_nuke,28,FaZe,Ninjas in Pyjamas,FaZe Clan,16,Ninjas in Pyjamas,12
+104471,150183,1,de_inferno,28,FaZe,Ninjas in Pyjamas,FaZe Clan,16,Ninjas in Pyjamas,12
+104471,151481,3,,,FaZe,Ninjas in Pyjamas,,,,
+104324,149856,3,de_dust2,35,PARIVISION,Legacy,PARIVISION,19,LEGACY,16
+104324,149857,2,de_inferno,18,PARIVISION,Legacy,LEGACY,13,PARIVISION,5
+104324,149858,1,de_ancient,22,PARIVISION,Legacy,PARIVISION,13,LEGACY,9
+104323,149854,2,de_train,18,NRG,Imperial,Imperial Esports,13,NRG,5
+104323,149855,1,de_nuke,21,NRG,Imperial,Imperial Esports,13,NRG,8
+104323,151475,3,,,NRG,Imperial,,,,
+104322,149850,3,de_mirage,23,Fluxo,FaZe,FaZe Clan,13,Fluxo,10
+104322,149851,2,de_nuke,20,Fluxo,FaZe,Fluxo,13,FaZe Clan,7
+104322,149852,1,de_inferno,19,Fluxo,FaZe,FaZe Clan,13,Fluxo,6
+104320,149845,2,de_ancient,28,PARIVISION,GamerLegion,PARIVISION,16,GamerLegion,12
+104320,149846,1,de_overpass,30,PARIVISION,GamerLegion,PARIVISION,16,GamerLegion,14
+104320,151470,3,,,PARIVISION,GamerLegion,,,,
+104321,149848,2,de_mirage,28,Imperial,The Huns,Imperial Esports,16,The Huns,12
+104321,149849,1,de_nuke,21,Imperial,The Huns,Imperial Esports,13,The Huns,8
+104321,151471,3,,,Imperial,The Huns,,,,
+104318,149838,3,de_dust2,22,NRG,fnatic,Fnatic,13,NRG,9
+104318,149839,2,de_inferno,23,NRG,fnatic,Fnatic,13,NRG,10
+104318,149840,1,de_mirage,16,NRG,fnatic,NRG,13,Fnatic,3
+104319,149841,3,de_inferno,18,RED Canids,FaZe,FaZe Clan,13,RED Canids,5
+104319,149842,2,de_nuke,36,RED Canids,FaZe,FaZe Clan,19,RED Canids,17
+104319,149843,1,de_mirage,20,RED Canids,FaZe,RED Canids,13,FaZe Clan,7
+104317,149836,2,de_mirage,18,B8,Legacy,B8 Esports,13,LEGACY,5
+104317,149837,1,de_dust2,28,B8,Legacy,B8 Esports,16,LEGACY,12
+104317,151472,3,,,B8,Legacy,,,,
+104316,149833,2,de_train,18,Fluxo,Ninjas in Pyjamas,Ninjas in Pyjamas,13,Fluxo,5
+104316,149834,1,de_nuke,18,Fluxo,Ninjas in Pyjamas,Ninjas in Pyjamas,13,Fluxo,5
+104316,151473,3,,,Fluxo,Ninjas in Pyjamas,,,,
+104315,149830,2,de_dust2,21,The Huns,Lynn Vision,The Huns,13,Lynn Vision,8
+104315,149831,1,de_ancient,20,The Huns,Lynn Vision,The Huns,13,Lynn Vision,7
+104315,151474,3,,,The Huns,Lynn Vision,,,,
+104314,149827,2,de_mirage,15,M80,NRG,M80,13,NRG Esports,2
+104314,149828,1,de_dust2,20,M80,NRG,M80,13,NRG,7
+104314,151467,3,,,M80,NRG,,,,
+104312,149821,2,de_inferno,16,FlyQuest,Fluxo,FlyQuest,13,Fluxo,3
+104312,149822,1,de_overpass,14,FlyQuest,Fluxo,FlyQuest,13,Fluxo,1
+104312,151469,3,,,FlyQuest,Fluxo,,,,
+104313,149824,2,de_overpass,18,GamerLegion,Rare Atom,GamerLegion,13,Rare Atom,5
+104313,149825,1,de_inferno,20,GamerLegion,Rare Atom,GamerLegion,13,Rare Atom,7
+104313,151468,3,,,GamerLegion,Rare Atom,,,,
+103096,147836,4,de_mirage,35,FURIA,Falcons,FURIA,19,Falcons,16
+103096,147837,3,de_train,34,FURIA,Falcons,FURIA,19,Falcons,15
+103096,147838,2,de_nuke,22,FURIA,Falcons,FURIA,13,Falcons,9
+103096,147839,1,de_inferno,16,FURIA,Falcons,Falcons,13,FURIA,3
