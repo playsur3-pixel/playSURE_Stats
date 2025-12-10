@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Papa from 'papaparse';
+import type { ParseResult } from 'papaparse';
 import {
   BarChart,
   Bar,
@@ -9,6 +10,8 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from 'recharts';
+
+// ---------- Types de base ----------
 
 type MatchRow = {
   match_id: number;
@@ -74,13 +77,26 @@ type StatsResult = {
   pickPerMap: PickPerMap[];
   boResults: BoResult[];
   mapStats: MapStats[];
-  topTeams: TeamStats[];
+  teamStats: TeamStats[]; // toutes les équipes, on filtre le top5 via le CSV
 };
 
-// fichiers servis directement par Vite / Netlify depuis le dossier public
+type Top5Ranking = {
+  rank: number;
+  team_name: string;
+};
+
+type Top5CsvRow = {
+  rank: number | string;
+  team_name: string;
+};
+
+// ---------- Chemins CSV (dossier public) ----------
+
 const matchesCsvUrl = '/data/csv/matches10122025.csv';
 const mapsCsvUrl = '/data/csv/maps10122025.csv';
+const top5CsvUrl = '/data/csv/top5.csv';
 
+// ---------- Petit composant StatCard ----------
 
 const StatCard: React.FC<{
   title: string;
@@ -88,7 +104,7 @@ const StatCard: React.FC<{
   icon: React.ReactNode;
 }> = ({ title, value, icon }) => (
   <div className="flex-1 min-w-[180px] rounded-2xl bg-white shadow-md border border-slate-100 px-6 py-4 flex items-center gap-4">
-    <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary text-xl">
+    <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-600 text-xl">
       {icon}
     </div>
     <div className="flex flex-col">
@@ -100,58 +116,106 @@ const StatCard: React.FC<{
   </div>
 );
 
+// ---------- Composant principal ----------
+
 const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | undefined>();
   const [matches, setMatches] = useState<MatchRow[]>([]);
   const [maps, setMaps] = useState<MapRow[]>([]);
+  const [top5Rankings, setTop5Rankings] = useState<Top5Ranking[]>([]);
   const [lookbackDays, setLookbackDays] = useState<number>(30);
 
-  // 1) Chargement CSV une fois
+  // 1) Chargement des 3 CSV
   useEffect(() => {
     async function load() {
       try {
-        const [matchesResult, mapsResult] = await Promise.all([
-          new Promise<Papa.ParseResult<MatchRow>>((resolve, reject) => {
+        const [matchesResult, mapsResult, top5Result]: [
+          ParseResult<MatchRow>,
+          ParseResult<MapRow>,
+          ParseResult<Top5CsvRow>
+        ] = await Promise.all([
+          new Promise<ParseResult<MatchRow>>((resolve, reject) => {
             Papa.parse<MatchRow>(matchesCsvUrl, {
               download: true,
               header: true,
               dynamicTyping: true,
               skipEmptyLines: true,
-              complete: resolve,
-              error: reject,
+              complete: (result) => resolve(result),
+              error: (err) => reject(err),
             });
           }),
-          new Promise<Papa.ParseResult<MapRow>>((resolve, reject) => {
+          new Promise<ParseResult<MapRow>>((resolve, reject) => {
             Papa.parse<MapRow>(mapsCsvUrl, {
               download: true,
               header: true,
               dynamicTyping: true,
               skipEmptyLines: true,
-              complete: resolve,
-              error: reject,
+              complete: (result) => resolve(result),
+              error: (err) => reject(err),
+            });
+          }),
+          new Promise<ParseResult<Top5CsvRow>>((resolve, reject) => {
+            Papa.parse<Top5CsvRow>(top5CsvUrl, {
+              download: true,
+              header: true,
+              dynamicTyping: true,
+              skipEmptyLines: true,
+              complete: (result) => resolve(result),
+              error: (err) => reject(err),
             });
           }),
         ]);
 
-        // tier S (insensible à la casse)
-        const m = (matchesResult.data || []).filter((row) => {
+        const matchRows: MatchRow[] = matchesResult.data ?? [];
+        const mapRows: MapRow[] = mapsResult.data ?? [];
+        const top5Rows: Top5CsvRow[] = top5Result.data ?? [];
+
+        // matches Tier S only
+        const m = matchRows.filter((row) => {
           if (!row) return false;
-          const tier = String(row.tier || '').toLowerCase();
+          const tier = String(row.tier ?? '').toLowerCase();
           return tier === 's';
         });
 
-        const mp = (mapsResult.data || []).filter(
-          (row) => row && row.map_name && row.map_winner_score != null,
+        const mp = mapRows.filter(
+          (row) => row && row.map_name && row.map_winner_score !== undefined,
         );
 
-        console.log('CSV chargés → matches tier S:', m.length, 'maps:', mp.length);
+        console.log(
+          'CSV chargés → matches tier S:',
+          m.length,
+          'maps:',
+          mp.length,
+        );
+
+        // top5.csv : juste rang + nom d’équipe
+        const filteredTop5Rows = top5Rows.filter(
+          (row) => row && typeof row.team_name === 'string',
+        );
+
+        const top5: Top5Ranking[] = filteredTop5Rows
+          .map((row) => {
+            const rankValue =
+              typeof row.rank === 'string'
+                ? Number.parseInt(row.rank, 10) || 0
+                : row.rank ?? 0;
+
+            return {
+              rank: rankValue,
+              team_name: row.team_name,
+            };
+          })
+          .sort((a, b) => a.rank - b.rank);
+
+        console.log('Top5.csv →', top5);
 
         setMatches(m);
         setMaps(mp);
+        setTop5Rankings(top5);
         setLoading(false);
-      } catch (e) {
-        console.error(e);
+      } catch (err) {
+        console.error(err);
         setError('Erreur lors du chargement des CSV');
         setLoading(false);
       }
@@ -160,20 +224,42 @@ const App: React.FC = () => {
     load();
   }, []);
 
-  // 2) Dériver stats + label de dates à partir des données + slider
+  // 2) Dériver les stats, la fenêtre temporelle, et les équipes du top5 à afficher
   let stats: StatsResult | null = null;
   let dateRangeLabel = 'Toutes les données disponibles';
+  let sliderMin = 1;
+  let sliderMax = 1;
+  let effectiveLookback = lookbackDays;
+  let top5Display: TeamStats[] = [];
 
-  if (!loading && !error && matches.length && maps.length) {
-    // timestamps à partir des start_date
+  if (!loading && !error && matches.length > 0 && maps.length > 0) {
+    // timeline réelle du dataset
     const timestamps = matches
       .map((m) => new Date(m.start_date).getTime())
       .filter((ts) => !Number.isNaN(ts));
 
-    if (timestamps.length) {
+    if (timestamps.length > 0) {
+      const minTs = Math.min(...timestamps);
       const maxTs = Math.max(...timestamps);
+      const minDate = new Date(minTs);
       const maxDate = new Date(maxTs);
-      const cutoffTs = maxTs - lookbackDays * 24 * 60 * 60 * 1000;
+
+      const totalDays = Math.max(
+        1,
+        Math.round((maxTs - minTs) / (24 * 60 * 60 * 1000)),
+      );
+
+      // slider basé sur la vraie plage de dates
+      sliderMax = totalDays;
+      sliderMin = totalDays >= 7 ? 7 : 1;
+
+      // clamp de la valeur actuelle
+      effectiveLookback = Math.min(
+        Math.max(lookbackDays, sliderMin),
+        sliderMax,
+      );
+
+      const cutoffTs = maxTs - effectiveLookback * 24 * 60 * 60 * 1000;
       const fromDate = new Date(cutoffTs);
 
       const filteredMatches = matches.filter((m) => {
@@ -182,7 +268,9 @@ const App: React.FC = () => {
       });
 
       const allowedIds = new Set(filteredMatches.map((m) => m.match_id));
-      const filteredMaps = maps.filter((mp) => allowedIds.has(mp.match_id));
+      const filteredMaps = maps.filter((mpRow) =>
+        allowedIds.has(mpRow.match_id),
+      );
 
       console.log(
         'Filtré → matches:',
@@ -191,17 +279,35 @@ const App: React.FC = () => {
         filteredMaps.length,
       );
 
-      // s’il reste au moins 1 match et 1 map, on calcule les stats
-      if (filteredMatches.length && filteredMaps.length) {
+      if (filteredMatches.length > 0 && filteredMaps.length > 0) {
         stats = computeStats(filteredMatches, filteredMaps);
         dateRangeLabel = `Du ${fromDate.toLocaleDateString()} au ${maxDate.toLocaleDateString()}`;
+      } else {
+        // fallback : si la fenêtre est trop petite, on affiche tout
+        stats = computeStats(matches, maps);
+        dateRangeLabel = `Du ${minDate.toLocaleDateString()} au ${maxDate.toLocaleDateString()} (fenêtre trop petite, affichage complet)`;
       }
-    } else {
-      // fallback : on ignore les dates et on prend tout
-      console.warn(
-        "Impossible de parser les dates → utilisation de l'ensemble du dataset",
-      );
-      stats = computeStats(matches, maps);
+
+      // Construction du Top5 affiché :
+      if (stats) {
+        const byName = new Map<string, TeamStats>(
+          stats.teamStats.map((t) => [t.team_name.toLowerCase(), t]),
+        );
+
+        if (top5Rankings.length > 0) {
+          // On prend l’ordre et les noms depuis top5.csv, stats depuis matches/maps
+          top5Display = top5Rankings
+            .map((ranking) =>
+              byName.get(ranking.team_name.toLowerCase()),
+            )
+            .filter((team): team is TeamStats => team !== undefined);
+        } else {
+          // fallback : top5 par nombre de matchs si pas de CSV
+          top5Display = [...stats.teamStats]
+            .sort((a, b) => b.totalMatches - a.totalMatches)
+            .slice(0, 5);
+        }
+      }
     }
   }
 
@@ -211,7 +317,7 @@ const App: React.FC = () => {
       <header className="bg-gradient-to-b from-sky-50 to-slate-100 border-b border-slate-200">
         <div className="max-w-6xl mx-auto px-4 py-8">
           <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-3">
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-white text-2xl">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-sky-600 text-white text-2xl">
               📈
             </span>
             playSURE CS2 Pro Stats
@@ -235,193 +341,220 @@ const App: React.FC = () => {
           <div className="text-center text-red-500 mt-10">{error}</div>
         )}
 
-        {!loading && !error && (
-          stats ? (
-            <>
-              {/* Slider */}
-              <section className="rounded-2xl bg-white shadow-md border border-slate-100 p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <div className="text-sm font-semibold text-slate-800">
-                    Période analysée
-                  </div>
-                  <div className="text-xs text-slate-500 mt-1">
-                    {dateRangeLabel}
-                  </div>
+        {!loading && !error && stats && (
+          <>
+            {/* Slider basé sur oldest_date / recent_date */}
+            <section className="rounded-2xl bg-white shadow-md border border-slate-100 p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <div className="text-sm font-semibold text-slate-800">
+                  Période analysée
                 </div>
-                <div className="w-full max-w-sm">
-                  <div className="flex items-center justify-between text-xs text-slate-500 mb-1">
-                    <span>Derniers {lookbackDays} jours</span>
-                    <span>7 – 365</span>
-                  </div>
-                  <input
-                    type="range"
-                    min={7}
-                    max={365}
-                    value={lookbackDays}
-                    onChange={(e) =>
-                      setLookbackDays(Number(e.target.value))
-                    }
-                    className="w-full accent-primary"
-                  />
+                <div className="text-xs text-slate-500 mt-1">
+                  {dateRangeLabel}
                 </div>
-              </section>
-
-              {/* Cartes */}
-              <section className="flex flex-wrap gap-4">
-                <StatCard
-                  title="Total Matches"
-                  value={stats.totalMatches}
-                  icon="🏆"
+                <div className="text-[11px] text-slate-400 mt-1">
+                  Fenêtre glissante sur la plage de dates réelle des matchs.
+                </div>
+              </div>
+              <div className="w-full max-w-sm">
+                <div className="flex items-center justify-between text-xs text-slate-500 mb-1">
+                  <span>Derniers {effectiveLookback} jours</span>
+                  <span>
+                    {sliderMin} – {sliderMax} jours
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min={sliderMin}
+                  max={sliderMax}
+                  value={effectiveLookback}
+                  onChange={(e) =>
+                    setLookbackDays(Number(e.target.value))
+                  }
+                  className="w-full accent-sky-500"
                 />
-                <StatCard
-                  title="Maps analysées"
-                  value={stats.totalMaps}
-                  icon="🗺️"
-                />
-                <StatCard
-                  title="Équipes trackées"
-                  value={stats.trackedTeams}
-                  icon="📊"
-                />
-              </section>
+              </div>
+            </section>
 
-              {/* Graphs */}
-              <section className="grid lg:grid-cols-2 gap-6">
-                <div className="rounded-2xl bg-white shadow-md border border-slate-100 p-5">
-                  <h2 className="text-lg font-semibold mb-2 text-slate-800 flex items-center gap-2">
-                    <span className="h-1.5 w-6 rounded-full bg-primary" />
-                    Pick par Map
-                  </h2>
-                  <div className="h-72">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart
-                        layout="vertical"
-                        data={stats.pickPerMap}
-                        margin={{
-                          top: 10,
-                          right: 20,
-                          left: 40,
-                          bottom: 10,
-                        }}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis type="number" />
-                        <YAxis dataKey="map_name" type="category" />
-                        <Tooltip />
-                        <Bar dataKey="count" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
+            {/* Cartes globales */}
+            <section className="flex flex-wrap gap-4">
+              <StatCard
+                title="Total Matches"
+                value={stats.totalMatches}
+                icon="🏆"
+              />
+              <StatCard
+                title="Maps analysées"
+                value={stats.totalMaps}
+                icon="🗺️"
+              />
+              <StatCard
+                title="Équipes trackées"
+                value={stats.trackedTeams}
+                icon="📊"
+              />
+            </section>
+
+            {/* Graphs */}
+            <section className="grid lg:grid-cols-2 gap-6">
+              <div className="rounded-2xl bg-white shadow-md border border-slate-100 p-5">
+                <h2 className="text-lg font-semibold mb-2 text-slate-800 flex items-center gap-2">
+                  <span className="h-1.5 w-6 rounded-full bg-sky-600" />
+                  Pick par Map
+                </h2>
+                <div className="h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      layout="vertical"
+                      data={stats.pickPerMap}
+                      margin={{
+                        top: 10,
+                        right: 20,
+                        left: 40,
+                        bottom: 10,
+                      }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis type="number" />
+                      <YAxis dataKey="map_name" type="category" />
+                      <Tooltip />
+                      <Bar
+                        dataKey="count"
+                        fill="#0f766e"
+                        radius={[4, 4, 4, 4]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
+              </div>
 
-                <div className="rounded-2xl bg-white shadow-md border border-slate-100 p-5">
-                  <h2 className="text-lg font-semibold mb-2 text-slate-800 flex items-center gap-2">
-                    <span className="h-1.5 w-6 rounded-full bg-accent" />
-                    Résultat Best-of
-                  </h2>
-                  <div className="h-72">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={stats.boResults}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="label" />
-                        <YAxis allowDecimals={false} />
-                        <Tooltip />
-                        <Bar dataKey="count" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
+              <div className="rounded-2xl bg-white shadow-md border border-slate-100 p-5">
+                <h2 className="text-lg font-semibold mb-2 text-slate-800 flex items-center gap-2">
+                  <span className="h-1.5 w-6 rounded-full bg-emerald-500" />
+                  Résultat Best-of
+                </h2>
+                <div className="h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={stats.boResults}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="label" />
+                      <YAxis allowDecimals={false} />
+                      <Tooltip />
+                      <Bar
+                        dataKey="count"
+                        fill="#1d4ed8"
+                        radius={[4, 4, 4, 4]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
-              </section>
+              </div>
+            </section>
 
-              {/* Tableaux */}
-              <section className="space-y-6">
-                <div className="rounded-2xl bg-white shadow-md border border-slate-100 p-5">
-                  <h2 className="text-lg font-semibold mb-4 text-slate-800 flex items-center gap-2">
-                    <span className="h-1.5 w-6 rounded-full bg-primary" />
-                    Statistiques détaillées par Map
-                  </h2>
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full text-sm">
-                      <thead>
-                        <tr className="bg-slate-50 text-xs uppercase text-slate-500">
-                          <th className="px-3 py-2 text-left">map_name</th>
-                          <th className="px-3 py-2 text-right">
-                            Matches par Map
-                          </th>
-                          <th className="px-3 py-2 text-right">
-                            Moyenne de Diff Rounds
-                          </th>
-                          <th className="px-3 py-2 text-right">
-                            % Matches serrés
-                          </th>
-                          <th className="px-3 py-2 text-right">% Stomps</th>
-                          <th className="px-3 py-2 text-right">
-                            % OverTime
-                          </th>
+            {/* Tableaux */}
+            <section className="space-y-6">
+              {/* Maps détaillées */}
+              <div className="rounded-2xl bg-white shadow-md border border-slate-100 p-5">
+                <h2 className="text-lg font-semibold mb-4 text-slate-800 flex items-center gap-2">
+                  <span className="h-1.5 w-6 rounded-full bg-sky-600" />
+                  Statistiques détaillées par Map
+                </h2>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full text-sm">
+                    <thead>
+                      <tr className="bg-slate-50 text-xs uppercase text-slate-500 border-b border-slate-200">
+                        <th className="px-3 py-2 text-left">map_name</th>
+                        <th className="px-3 py-2 text-right">
+                          Matches par Map
+                        </th>
+                        <th className="px-3 py-2 text-right">
+                          Moyenne de Diff Rounds
+                        </th>
+                        <th className="px-3 py-2 text-right">
+                          % Matches serrés
+                        </th>
+                        <th className="px-3 py-2 text-right">% Stomps</th>
+                        <th className="px-3 py-2 text-right">
+                          % OverTime
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {stats.mapStats.map((m) => (
+                        <tr
+                          key={m.map_name}
+                          className="odd:bg-white even:bg-slate-50/60"
+                        >
+                          <td className="px-3 py-2 font-medium">
+                            {m.map_name}
+                          </td>
+                          <td className="px-3 py-2 text-right">
+                            {m.matches}
+                          </td>
+                          <td className="px-3 py-2 text-right">
+                            {m.avgDiff.toFixed(2)}
+                          </td>
+                          <td className="px-3 py-2 text-right">
+                            {m.closePct.toFixed(2)} %
+                          </td>
+                          <td className="px-3 py-2 text-right">
+                            {m.stompPct.toFixed(2)} %
+                          </td>
+                          <td className="px-3 py-2 text-right">
+                            {m.otPct.toFixed(2)} %
+                          </td>
                         </tr>
-                      </thead>
-                      <tbody>
-                        {stats.mapStats.map((m) => (
-                          <tr
-                            key={m.map_name}
-                            className="odd:bg-white even:bg-slate-50/60"
-                          >
-                            <td className="px-3 py-2 font-medium">
-                              {m.map_name}
-                            </td>
-                            <td className="px-3 py-2 text-right">
-                              {m.matches}
-                            </td>
-                            <td className="px-3 py-2 text-right">
-                              {m.avgDiff.toFixed(2)}
-                            </td>
-                            <td className="px-3 py-2 text-right">
-                              {m.closePct.toFixed(2)} %
-                            </td>
-                            <td className="px-3 py-2 text-right">
-                              {m.stompPct.toFixed(2)} %
-                            </td>
-                            <td className="px-3 py-2 text-right">
-                              {m.otPct.toFixed(2)} %
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
+              </div>
 
-                <div className="rounded-2xl bg-white shadow-md border border-slate-100 p-5">
-                  <h2 className="text-lg font-semibold mb-4 text-slate-800 flex items-center gap-2">
-                    <span className="h-1.5 w-6 rounded-full bg-accent" />
-                    Top 5 Monde
-                  </h2>
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full text-sm">
-                      <thead>
-                        <tr className="bg-slate-50 text-xs uppercase text-slate-500">
-                          <th className="px-3 py-2 text-left">team_name</th>
-                          <th className="px-3 py-2 text-left">BestMap</th>
-                          <th className="px-3 py-2 text-left">
-                            BestMapWinrate_Label
-                          </th>
-                          <th className="px-3 py-2 text-right">
-                            BestMapMatches
-                          </th>
-                          <th className="px-3 py-2 text-right">
-                            TotalMatchesPlayed
-                          </th>
-                          <th className="px-3 py-2 text-right">
-                            MatchesWon
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {stats.topTeams.map((t) => (
+              {/* Top 5 Monde basé sur top5.csv */}
+              <div className="rounded-2xl bg-white shadow-md border border-slate-100 p-5">
+                <h2 className="text-lg font-semibold mb-4 text-slate-800 flex items-center gap-2">
+                  <span className="h-1.5 w-6 rounded-full bg-emerald-500" />
+                  Top 5 Monde (défini par top5.csv)
+                </h2>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full text-sm">
+                    <thead>
+                      <tr className="bg-slate-50 text-xs uppercase text-slate-500 border-b border-slate-200">
+                        <th className="px-3 py-2 text-left">#</th>
+                        <th className="px-3 py-2 text-left">team_name</th>
+                        <th className="px-3 py-2 text-left">BestMap</th>
+                        <th className="px-3 py-2 text-left">
+                          BestMapWinrate_Label
+                        </th>
+                        <th className="px-3 py-2 text-right">
+                          BestMapMatches
+                        </th>
+                        <th className="px-3 py-2 text-right">
+                          TotalMatchesPlayed
+                        </th>
+                        <th className="px-3 py-2 text-right">
+                          MatchesWon
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {top5Display.map((t, idx) => {
+                        // rang depuis top5.csv si dispo, sinon idx+1
+                        const ranking = top5Rankings.find(
+                          (r) =>
+                            r.team_name.toLowerCase() ===
+                            t.team_name.toLowerCase(),
+                        );
+                        const rankFromCsv = ranking
+                          ? ranking.rank
+                          : idx + 1;
+
+                        return (
                           <tr
                             key={t.team_name}
                             className="odd:bg-white even:bg-slate-50/60"
                           >
+                            <td className="px-3 py-2">{rankFromCsv}</td>
                             <td className="px-3 py-2 font-medium">
                               {t.team_name}
                             </td>
@@ -439,30 +572,33 @@ const App: React.FC = () => {
                               {t.matchesWon}
                             </td>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 </div>
-              </section>
-            </>
-          ) : (
-            <div className="text-center text-slate-500 mt-10">
-              Aucune donnée disponible pour la période sélectionnée.
-            </div>
-          )
+              </div>
+            </section>
+          </>
+        )}
+
+        {!loading && !error && !stats && (
+          <div className="text-center text-slate-500 mt-10">
+            Aucune donnée exploitable trouvée dans les CSV.
+          </div>
         )}
       </main>
     </div>
   );
 };
 
-// ------- fonctions de calcul --------
+// ---------- Fonctions de calcul à partir des CSV ----------
 
 function computeStats(matches: MatchRow[], maps: MapRow[]): StatsResult {
   const totalMatches = matches.length;
   const totalMaps = maps.length;
 
+  // nb équipes trackées
   const teamSet = new Set<string>();
   matches.forEach((m) => {
     if (m.team1_name) teamSet.add(m.team1_name);
@@ -470,6 +606,7 @@ function computeStats(matches: MatchRow[], maps: MapRow[]): StatsResult {
   });
   const trackedTeams = teamSet.size;
 
+  // join maps ←→ matches
   const matchesById = new Map<number, MatchRow>();
   matches.forEach((m) => matchesById.set(m.match_id, m));
   const mapsWithMatch = maps.map((map) => ({
@@ -477,28 +614,31 @@ function computeStats(matches: MatchRow[], maps: MapRow[]): StatsResult {
     match: matchesById.get(map.match_id),
   }));
 
+  // Pick par map
   const pickMapCount = new Map<string, number>();
   for (const m of mapsWithMatch) {
-    pickMapCount.set(m.map_name, (pickMapCount.get(m.map_name) || 0) + 1);
+    pickMapCount.set(m.map_name, (pickMapCount.get(m.map_name) ?? 0) + 1);
   }
   const pickPerMap: PickPerMap[] = Array.from(pickMapCount.entries())
     .map(([map_name, count]) => ({ map_name, count }))
     .sort((a, b) => b.count - a.count);
 
+  // Résultats de BO (score final série)
   const boCounter = new Map<string, number>();
   for (const m of matches) {
     const s1 = Number(m.team1_score_bo);
     const s2 = Number(m.team2_score_bo);
-    if (isNaN(s1) || isNaN(s2)) continue;
+    if (Number.isNaN(s1) || Number.isNaN(s2)) continue;
     const winnerScore = Math.max(s1, s2);
     const loserScore = Math.min(s1, s2);
     const label = `${winnerScore}-${loserScore}`;
-    boCounter.set(label, (boCounter.get(label) || 0) + 1);
+    boCounter.set(label, (boCounter.get(label) ?? 0) + 1);
   }
   const boResults: BoResult[] = Array.from(boCounter.entries())
     .map(([label, count]) => ({ label, count }))
     .sort((a, b) => a.label.localeCompare(b.label));
 
+  // Stats par map
   const byMap = new Map<string, MapRow[]>();
   for (const m of mapsWithMatch) {
     if (!byMap.has(m.map_name)) byMap.set(m.map_name, []);
@@ -515,7 +655,7 @@ function computeStats(matches: MatchRow[], maps: MapRow[]): StatsResult {
       for (const r of rows) {
         const w = Number(r.map_winner_score);
         const l = Number(r.map_loser_score);
-        if (isNaN(w) || isNaN(l)) continue;
+        if (Number.isNaN(w) || Number.isNaN(l)) continue;
         const diff = Math.abs(w - l);
         diffs.push(diff);
         if (diff <= 2) closeCount += 1;
@@ -525,7 +665,8 @@ function computeStats(matches: MatchRow[], maps: MapRow[]): StatsResult {
 
       const matchesCount = rows.length || 1;
       const avgDiff =
-        diffs.reduce((s, v) => s + v, 0) / (diffs.length || 1);
+        diffs.reduce((sum, value) => sum + value, 0) /
+        (diffs.length || 1);
 
       return {
         map_name,
@@ -538,6 +679,7 @@ function computeStats(matches: MatchRow[], maps: MapRow[]): StatsResult {
     })
     .sort((a, b) => b.matches - a.matches);
 
+  // Stats par équipe (BestMap etc.)
   const teamIdByName = new Map<string, number>();
   for (const m of matches) {
     if (!teamIdByName.has(m.team1_name)) {
@@ -554,7 +696,7 @@ function computeStats(matches: MatchRow[], maps: MapRow[]): StatsResult {
     const teamMatches = matches.filter(
       (m) => m.team1_id === team_id || m.team2_id === team_id,
     );
-    if (!teamMatches.length) continue;
+    if (teamMatches.length === 0) continue;
 
     const totalTeamMatches = teamMatches.length;
     const matchesWon = teamMatches.filter(
@@ -564,7 +706,7 @@ function computeStats(matches: MatchRow[], maps: MapRow[]): StatsResult {
     const teamMaps = mapsWithMatch.filter(
       (m) => m.team1_name === team_name || m.team2_name === team_name,
     );
-    if (!teamMaps.length) continue;
+    if (teamMaps.length === 0) continue;
 
     const mapsByName = new Map<string, MapRow[]>();
     for (const r of teamMaps) {
@@ -580,11 +722,11 @@ function computeStats(matches: MatchRow[], maps: MapRow[]): StatsResult {
     for (const [map_name, rows] of mapsByName.entries()) {
       const played = rows.length;
       const winsOnMap = rows.filter((r) =>
-        (r.map_winner_name || '')
+        (r.map_winner_name ?? '')
           .toLowerCase()
           .includes(team_name.toLowerCase()),
       ).length;
-      const wr = played ? winsOnMap / played : 0;
+      const wr = played > 0 ? winsOnMap / played : 0;
 
       if (
         wr > bestWinrate ||
@@ -597,13 +739,11 @@ function computeStats(matches: MatchRow[], maps: MapRow[]): StatsResult {
       }
     }
 
+    // Winrate affiché = winrate en BO, pas en maps
     let label = 'Aucune victoire';
-    if (bestMapMatches > 0 && bestWins > 0) {
-      if (bestWins === bestMapMatches) {
-        label = '100,0 %';
-      } else {
-        label = `${(bestWinrate * 100).toFixed(1)} %`;
-      }
+    if (totalTeamMatches > 0 && matchesWon > 0) {
+      const wrSeries = matchesWon / totalTeamMatches;
+      label = `${(wrSeries * 100).toFixed(1)} %`;
     }
 
     teamStats.push({
@@ -616,10 +756,6 @@ function computeStats(matches: MatchRow[], maps: MapRow[]): StatsResult {
     });
   }
 
-  const topTeams = teamStats
-    .sort((a, b) => b.totalMatches - a.totalMatches)
-    .slice(0, 5);
-
   return {
     totalMatches,
     totalMaps,
@@ -627,7 +763,7 @@ function computeStats(matches: MatchRow[], maps: MapRow[]): StatsResult {
     pickPerMap,
     boResults,
     mapStats,
-    topTeams,
+    teamStats,
   };
 }
 
