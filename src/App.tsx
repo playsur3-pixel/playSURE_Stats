@@ -716,7 +716,6 @@ function computeStats(matches: MatchRow[], maps: MapRow[]): StatsResult {
 
     let bestMap = '';
     let bestMapMatches = 0;
-    let bestWins = 0;
     let bestWinrate = 0;
 
     for (const [map_name, rows] of mapsByName.entries()) {
@@ -734,7 +733,6 @@ function computeStats(matches: MatchRow[], maps: MapRow[]): StatsResult {
       ) {
         bestMap = map_name;
         bestMapMatches = played;
-        bestWins = winsOnMap;
         bestWinrate = wr;
       }
     }
