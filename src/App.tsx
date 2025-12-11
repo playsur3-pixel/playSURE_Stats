@@ -575,7 +575,7 @@ const App: React.FC = () => {
               <div className="rounded-2xl bg-slate-950/90 shadow-md border border-slate-800 p-5 backdrop-blur-sm">
                 <h2 className="text-lg font-semibold mb-4 text-slate-100 flex items-center gap-2">
                   <span className="h-1.5 w-6 rounded-full bg-sky-500" />
-                  Top 5 Monde (défini par top5.csv)
+                  Top 5 Monde #VALVE Ranking
                 </h2>
                 <div className="overflow-x-auto">
                   <table className="min-w-full text-sm">
