@@ -328,9 +328,7 @@ const App: React.FC = () => {
             </span>
           </h1>
           <p className="mt-2 text-sm text-slate-300 max-w-xl">
-            Analyse complète des performances et statistiques de la scène
-            compétitive (Tier S), générée automatiquement depuis les fichiers
-            CSV.
+            Statistiques des matchs S-TIER BO3 / BO5
           </p>
         </div>
       </header>
