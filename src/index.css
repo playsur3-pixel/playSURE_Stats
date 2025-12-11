@@ -7,3 +7,72 @@ body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
 }
+/* --- Background animé style CS2 --- */
+
+.bg-cs2-animated {
+  background:
+    radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 55%),
+    radial-gradient(circle at bottom right, rgba(249, 115, 22, 0.24), transparent 55%),
+    radial-gradient(circle at top right, rgba(34, 197, 94, 0.12), transparent 55%),
+    #020617;
+  background-size: 140% 140%;
+  animation: cs2-pan 40s linear infinite;
+}
+
+@keyframes cs2-pan {
+  0% {
+    background-position: 0% 0%, 100% 100%, 50% 0%;
+  }
+  50% {
+    background-position: 50% 0%, 50% 100%, 50% 50%;
+  }
+  100% {
+    background-position: 0% 0%, 100% 100%, 50% 0%;
+  }
+}
+/* Nettoyage du fond du body pour enlever les lignes/blocs résiduels */
+body {
+  margin: 0;
+  background-color: #020617;
+  background-image: none !important;
+}
+/* Slider d'historique : zone de grab élargie */
+.history-slider {
+  height: 0.5rem;
+}
+
+/* Webkit (Chrome / Edge / Opera) */
+.history-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  background-color: #f97316;
+  border: 2px solid #020617;
+  cursor: pointer;
+  margin-top: -6px; /* <-- centre le thumb sur un track de 6px */
+}
+
+
+.history-slider::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 9999px;
+  background-color: rgba(148, 163, 184, 0.4);
+}
+
+/* Firefox */
+.history-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  background-color: #f97316;
+  border: 2px solid #020617;
+  cursor: pointer;
+}
+
+.history-slider::-moz-range-track {
+  height: 6px;
+  border-radius: 9999px;
+  background-color: rgba(148, 163, 184, 0.4);
+}

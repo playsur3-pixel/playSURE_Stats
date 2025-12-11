@@ -9,6 +9,7 @@ import {
   Tooltip,
   CartesianGrid,
   ResponsiveContainer,
+  Cell,
 } from 'recharts';
 
 // ---------- Types de base ----------
@@ -77,7 +78,7 @@ type StatsResult = {
   pickPerMap: PickPerMap[];
   boResults: BoResult[];
   mapStats: MapStats[];
-  teamStats: TeamStats[]; // toutes les équipes, on filtre le top5 via le CSV
+  teamStats: TeamStats[];
 };
 
 type Top5Ranking = {
@@ -96,6 +97,17 @@ const matchesCsvUrl = '/data/csv/matches10122025.csv';
 const mapsCsvUrl = '/data/csv/maps10122025.csv';
 const top5CsvUrl = '/data/csv/top5.csv';
 
+// Couleurs en dégradé pour les maps (première = la plus claire)
+const mapBarColors: string[] = [
+  '#f97316',
+  '#ea580c',
+  '#c2410c',
+  '#9a3412',
+  '#7c2d12',
+  '#5a1f0c',
+  '#431407',
+];
+
 // ---------- Petit composant StatCard ----------
 
 const StatCard: React.FC<{
@@ -103,15 +115,15 @@ const StatCard: React.FC<{
   value: string | number;
   icon: React.ReactNode;
 }> = ({ title, value, icon }) => (
-  <div className="flex-1 min-w-[180px] rounded-2xl bg-white shadow-md border border-slate-100 px-6 py-4 flex items-center gap-4">
-    <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-600 text-xl">
+  <div className="flex-1 min-w-[180px] rounded-2xl bg-slate-900 shadow-md border border-slate-800 px-6 py-4 flex items-center gap-4">
+    <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500/10 text-orange-400 text-xl">
       {icon}
     </div>
     <div className="flex flex-col">
       <div className="text-xs font-semibold uppercase text-slate-400">
         {title}
       </div>
-      <div className="mt-1 text-2xl font-bold text-slate-900">{value}</div>
+      <div className="mt-1 text-2xl font-bold text-slate-50">{value}</div>
     </div>
   </div>
 );
@@ -167,19 +179,17 @@ const App: React.FC = () => {
           }),
         ]);
 
-        const matchRows: MatchRow[] = matchesResult.data ?? [];
-        const mapRows: MapRow[] = mapsResult.data ?? [];
-        const top5Rows: Top5CsvRow[] = top5Result.data ?? [];
+        const matchRows = matchesResult.data ?? [];
+        const mapRows = mapsResult.data ?? [];
+        const top5Rows = top5Result.data ?? [];
 
-        // matches Tier S only
         const m = matchRows.filter((row) => {
-          if (!row) return false;
           const tier = String(row.tier ?? '').toLowerCase();
           return tier === 's';
         });
 
         const mp = mapRows.filter(
-          (row) => row && row.map_name && row.map_winner_score !== undefined,
+          (row) => row.map_name && row.map_winner_score !== undefined,
         );
 
         console.log(
@@ -189,9 +199,9 @@ const App: React.FC = () => {
           mp.length,
         );
 
-        // top5.csv : juste rang + nom d’équipe
         const filteredTop5Rows = top5Rows.filter(
-          (row) => row && typeof row.team_name === 'string',
+          (row): row is Top5CsvRow =>
+            row !== null && typeof row.team_name === 'string',
         );
 
         const top5: Top5Ranking[] = filteredTop5Rows
@@ -233,7 +243,6 @@ const App: React.FC = () => {
   let top5Display: TeamStats[] = [];
 
   if (!loading && !error && matches.length > 0 && maps.length > 0) {
-    // timeline réelle du dataset
     const timestamps = matches
       .map((m) => new Date(m.start_date).getTime())
       .filter((ts) => !Number.isNaN(ts));
@@ -249,11 +258,9 @@ const App: React.FC = () => {
         Math.round((maxTs - minTs) / (24 * 60 * 60 * 1000)),
       );
 
-      // slider basé sur la vraie plage de dates
       sliderMax = totalDays;
       sliderMin = totalDays >= 7 ? 7 : 1;
 
-      // clamp de la valeur actuelle
       effectiveLookback = Math.min(
         Math.max(lookbackDays, sliderMin),
         sliderMax,
@@ -283,26 +290,22 @@ const App: React.FC = () => {
         stats = computeStats(filteredMatches, filteredMaps);
         dateRangeLabel = `Du ${fromDate.toLocaleDateString()} au ${maxDate.toLocaleDateString()}`;
       } else {
-        // fallback : si la fenêtre est trop petite, on affiche tout
         stats = computeStats(matches, maps);
         dateRangeLabel = `Du ${minDate.toLocaleDateString()} au ${maxDate.toLocaleDateString()} (fenêtre trop petite, affichage complet)`;
       }
 
-      // Construction du Top5 affiché :
       if (stats) {
         const byName = new Map<string, TeamStats>(
           stats.teamStats.map((t) => [t.team_name.toLowerCase(), t]),
         );
 
         if (top5Rankings.length > 0) {
-          // On prend l’ordre et les noms depuis top5.csv, stats depuis matches/maps
           top5Display = top5Rankings
             .map((ranking) =>
               byName.get(ranking.team_name.toLowerCase()),
             )
             .filter((team): team is TeamStats => team !== undefined);
         } else {
-          // fallback : top5 par nombre de matchs si pas de CSV
           top5Display = [...stats.teamStats]
             .sort((a, b) => b.totalMatches - a.totalMatches)
             .slice(0, 5);
@@ -312,17 +315,19 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="min-h-screen bg-cs2-animated text-slate-100">
       {/* HEADER */}
-      <header className="bg-gradient-to-b from-sky-50 to-slate-100 border-b border-slate-200">
+      <header className="bg-gradient-to-b from-slate-950/80 via-slate-950/60 to-slate-950/0 border-b border-slate-800">
         <div className="max-w-6xl mx-auto px-4 py-8">
-          <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-3">
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-sky-600 text-white text-2xl">
+          <h1 className="text-3xl font-bold text-slate-100 flex items-center gap-3">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-orange-500 text-slate-900 text-2xl shadow-lg">
               📈
             </span>
-            playSURE CS2 Pro Stats
+            <span>
+              playSURE <span className="text-orange-400">CS2</span> Pro Stats
+            </span>
           </h1>
-          <p className="mt-2 text-sm text-slate-600 max-w-xl">
+          <p className="mt-2 text-sm text-slate-300 max-w-xl">
             Analyse complète des performances et statistiques de la scène
             compétitive (Tier S), générée automatiquement depuis les fichiers
             CSV.
@@ -332,32 +337,32 @@ const App: React.FC = () => {
 
       <main className="max-w-6xl mx-auto px-4 pb-10 space-y-6 -mt-6 relative">
         {loading && (
-          <div className="text-center text-slate-500 mt-10">
+          <div className="text-center text-slate-300 mt-10">
             Chargement des données CSV...
           </div>
         )}
 
         {error && (
-          <div className="text-center text-red-500 mt-10">{error}</div>
+          <div className="text-center text-red-400 mt-10">{error}</div>
         )}
 
         {!loading && !error && stats && (
           <>
-            {/* Slider basé sur oldest_date / recent_date */}
-            <section className="rounded-2xl bg-white shadow-md border border-slate-100 p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            {/* Slider période */}
+            <section className="rounded-2xl bg-slate-950/90 shadow-md border border-slate-800 p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between backdrop-blur-sm">
               <div>
-                <div className="text-sm font-semibold text-slate-800">
+                <div className="text-sm font-semibold text-slate-100">
                   Période analysée
                 </div>
-                <div className="text-xs text-slate-500 mt-1">
+                <div className="text-xs text-slate-300 mt-1">
                   {dateRangeLabel}
                 </div>
-                <div className="text-[11px] text-slate-400 mt-1">
+                <div className="text-[11px] text-slate-500 mt-1">
                   Fenêtre glissante sur la plage de dates réelle des matchs.
                 </div>
               </div>
               <div className="w-full max-w-sm">
-                <div className="flex items-center justify-between text-xs text-slate-500 mb-1">
+                <div className="flex items-center justify-between text-xs text-slate-300 mb-1">
                   <span>Derniers {effectiveLookback} jours</span>
                   <span>
                     {sliderMin} – {sliderMax} jours
@@ -371,7 +376,7 @@ const App: React.FC = () => {
                   onChange={(e) =>
                     setLookbackDays(Number(e.target.value))
                   }
-                  className="w-full accent-sky-500"
+                  className="w-full accent-orange-500 cursor-pointer history-slider"
                 />
               </div>
             </section>
@@ -397,9 +402,10 @@ const App: React.FC = () => {
 
             {/* Graphs */}
             <section className="grid lg:grid-cols-2 gap-6">
-              <div className="rounded-2xl bg-white shadow-md border border-slate-100 p-5">
-                <h2 className="text-lg font-semibold mb-2 text-slate-800 flex items-center gap-2">
-                  <span className="h-1.5 w-6 rounded-full bg-sky-600" />
+              {/* Pick par map */}
+              <div className="rounded-2xl bg-slate-950/90 shadow-md border border-slate-800 p-5 backdrop-blur-sm">
+                <h2 className="text-lg font-semibold mb-2 text-slate-100 flex items-center gap-2">
+                  <span className="h-1.5 w-6 rounded-full bg-orange-500" />
                   Pick par Map
                 </h2>
                 <div className="h-72">
@@ -414,35 +420,90 @@ const App: React.FC = () => {
                         bottom: 10,
                       }}
                     >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis type="number" />
-                      <YAxis dataKey="map_name" type="category" />
-                      <Tooltip />
-                      <Bar
-                        dataKey="count"
-                        fill="#0f766e"
-                        radius={[4, 4, 4, 4]}
+                      <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
+                      <XAxis
+                        type="number"
+                        stroke="#9ca3af"
+                        tick={{ fill: '#9ca3af', fontSize: 12 }}
                       />
+                      <YAxis
+                        dataKey="map_name"
+                        type="category"
+                        stroke="#9ca3af"
+                        tick={{ fill: '#9ca3af', fontSize: 12 }}
+                      />
+                      <Tooltip
+                      cursor={false}
+                        contentStyle={{
+                          backgroundColor: '#020617',
+                          borderColor: '#1f2937',
+                          color: '#e5e7eb',
+                          fontSize: 12,
+                        }}
+                      />
+                      <Bar dataKey="count" radius={[4, 4, 4, 4]}>
+                        {stats.pickPerMap.map((entry, index) => {
+                          const colorIndex = Math.min(
+                            index,
+                            mapBarColors.length - 1,
+                          );
+                          return (
+                            <Cell
+                              key={entry.map_name}
+                              fill={mapBarColors[colorIndex]}
+                            />
+                          );
+                        })}
+                      </Bar>
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
               </div>
 
-              <div className="rounded-2xl bg-white shadow-md border border-slate-100 p-5">
-                <h2 className="text-lg font-semibold mb-2 text-slate-800 flex items-center gap-2">
-                  <span className="h-1.5 w-6 rounded-full bg-emerald-500" />
+              {/* Résultat Best-of */}
+              <div className="rounded-2xl bg-slate-950/90 shadow-md border border-slate-800 p-5 backdrop-blur-sm">
+                <h2 className="text-lg font-semibold mb-2 text-slate-100 flex items-center gap-2">
+                  <span className="h-1.5 w-6 rounded-full bg-[#0f766e]" />
                   Résultat Best-of
                 </h2>
                 <div className="h-72">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={stats.boResults}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="label" />
-                      <YAxis allowDecimals={false} />
-                      <Tooltip />
+                      <defs>
+                        <linearGradient
+                          id="boTealGradient"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop offset="0%" stopColor="#0f766e" />
+                          <stop offset="100%" stopColor="#022c22" />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
+                      <XAxis
+                        dataKey="label"
+                        stroke="#9ca3af"
+                        tick={{ fill: '#9ca3af', fontSize: 12 }}
+                      />
+                      <YAxis
+                        allowDecimals={false}
+                        stroke="#9ca3af"
+                        tick={{ fill: '#9ca3af', fontSize: 12 }}
+                      />
+                      <Tooltip
+                      cursor={false}
+                        contentStyle={{
+                          backgroundColor: '#020617',
+                          borderColor: '#1f2937',
+                          color: '#e5e7eb',
+                          fontSize: 12,
+                        }}
+                      />
                       <Bar
                         dataKey="count"
-                        fill="#1d4ed8"
+                        fill="url(#boTealGradient)"
                         radius={[4, 4, 4, 4]}
                       />
                     </BarChart>
@@ -454,15 +515,15 @@ const App: React.FC = () => {
             {/* Tableaux */}
             <section className="space-y-6">
               {/* Maps détaillées */}
-              <div className="rounded-2xl bg-white shadow-md border border-slate-100 p-5">
-                <h2 className="text-lg font-semibold mb-4 text-slate-800 flex items-center gap-2">
-                  <span className="h-1.5 w-6 rounded-full bg-sky-600" />
+              <div className="rounded-2xl bg-slate-950/90 shadow-md border border-slate-800 p-5 backdrop-blur-sm">
+                <h2 className="text-lg font-semibold mb-4 text-slate-100 flex items-center gap-2">
+                  <span className="h-1.5 w-6 rounded-full bg-orange-500" />
                   Statistiques détaillées par Map
                 </h2>
                 <div className="overflow-x-auto">
                   <table className="min-w-full text-sm">
                     <thead>
-                      <tr className="bg-slate-50 text-xs uppercase text-slate-500 border-b border-slate-200">
+                      <tr className="bg-slate-950 text-xs uppercase text-slate-400 border-b border-slate-700">
                         <th className="px-3 py-2 text-left">map_name</th>
                         <th className="px-3 py-2 text-right">
                           Matches par Map
@@ -475,7 +536,7 @@ const App: React.FC = () => {
                         </th>
                         <th className="px-3 py-2 text-right">% Stomps</th>
                         <th className="px-3 py-2 text-right">
-                          % OverTime
+                          % Overtime
                         </th>
                       </tr>
                     </thead>
@@ -483,9 +544,9 @@ const App: React.FC = () => {
                       {stats.mapStats.map((m) => (
                         <tr
                           key={m.map_name}
-                          className="odd:bg-white even:bg-slate-50/60"
+                          className="odd:bg-slate-950 even:bg-slate-900/80"
                         >
-                          <td className="px-3 py-2 font-medium">
+                          <td className="px-3 py-2 font-medium text-slate-50">
                             {m.map_name}
                           </td>
                           <td className="px-3 py-2 text-right">
@@ -510,17 +571,17 @@ const App: React.FC = () => {
                 </div>
               </div>
 
-              {/* Top 5 Monde basé sur top5.csv */}
-              <div className="rounded-2xl bg-white shadow-md border border-slate-100 p-5">
-                <h2 className="text-lg font-semibold mb-4 text-slate-800 flex items-center gap-2">
-                  <span className="h-1.5 w-6 rounded-full bg-emerald-500" />
+              {/* Top 5 Monde */}
+              <div className="rounded-2xl bg-slate-950/90 shadow-md border border-slate-800 p-5 backdrop-blur-sm">
+                <h2 className="text-lg font-semibold mb-4 text-slate-100 flex items-center gap-2">
+                  <span className="h-1.5 w-6 rounded-full bg-sky-500" />
                   Top 5 Monde (défini par top5.csv)
                 </h2>
                 <div className="overflow-x-auto">
                   <table className="min-w-full text-sm">
                     <thead>
-                      <tr className="bg-slate-50 text-xs uppercase text-slate-500 border-b border-slate-200">
-                        <th className="px-3 py-2 text-left">#</th>
+                      <tr className="bg-slate-950 text-xs uppercase text-slate-400 border-b border-slate-700">
+                        <th className="px-3 py-2 text-left">Rang</th>
                         <th className="px-3 py-2 text-left">team_name</th>
                         <th className="px-3 py-2 text-left">BestMap</th>
                         <th className="px-3 py-2 text-left">
@@ -539,7 +600,6 @@ const App: React.FC = () => {
                     </thead>
                     <tbody>
                       {top5Display.map((t, idx) => {
-                        // rang depuis top5.csv si dispo, sinon idx+1
                         const ranking = top5Rankings.find(
                           (r) =>
                             r.team_name.toLowerCase() ===
@@ -549,14 +609,59 @@ const App: React.FC = () => {
                           ? ranking.rank
                           : idx + 1;
 
+                        const rankLabel =
+                          rankFromCsv === 1 ? '1er' : `${rankFromCsv}ème`;
+
+                        let emoji = '';
+                        let textLabel = '';
+                        let badgeClass =
+                          'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] uppercase tracking-wide';
+
+                        if (rankFromCsv === 1) {
+                          emoji = '🥇';
+                          textLabel = 'Or';
+                          badgeClass +=
+                            ' border-yellow-400 bg-yellow-500/10 text-yellow-300';
+                        } else if (rankFromCsv === 2) {
+                          emoji = '🥈';
+                          textLabel = 'Argent';
+                          badgeClass +=
+                            ' border-slate-300 bg-slate-300/10 text-slate-200';
+                        } else if (rankFromCsv === 3) {
+                          emoji = '🥉';
+                          textLabel = 'Bronze';
+                          badgeClass +=
+                            ' border-amber-500 bg-amber-600/10 text-amber-300';
+                        } else if (rankFromCsv === 4) {
+                          emoji = '⭐';
+                          textLabel = 'Deciders';
+                          badgeClass +=
+                            ' border-teal-500 bg-teal-600/10 text-teal-300';
+                        } else {
+                          emoji = '⭐';
+                          textLabel = 'Outsiders';
+                          badgeClass +=
+                            ' border-indigo-500 bg-indigo-600/10 text-indigo-300';
+                        }
+
                         return (
                           <tr
                             key={t.team_name}
-                            className="odd:bg-white even:bg-slate-50/60"
+                            className="odd:bg-slate-950 even:bg-slate-900/80"
                           >
-                            <td className="px-3 py-2">{rankFromCsv}</td>
-                            <td className="px-3 py-2 font-medium">
-                              {t.team_name}
+                            <td className="px-3 py-2">{rankLabel}</td>
+                            <td className="px-3 py-2">
+                              <div className="flex items-center gap-3">
+                                <span className={badgeClass}>
+                                  <span className="text-sm leading-none">
+                                    {emoji}
+                                  </span>
+                                  <span>{textLabel}</span>
+                                </span>
+                                <span className="font-medium text-slate-50">
+                                  {t.team_name}
+                                </span>
+                              </div>
                             </td>
                             <td className="px-3 py-2">{t.bestMap}</td>
                             <td className="px-3 py-2">
@@ -583,7 +688,7 @@ const App: React.FC = () => {
         )}
 
         {!loading && !error && !stats && (
-          <div className="text-center text-slate-500 mt-10">
+          <div className="text-center text-slate-300 mt-10">
             Aucune donnée exploitable trouvée dans les CSV.
           </div>
         )}
@@ -598,7 +703,6 @@ function computeStats(matches: MatchRow[], maps: MapRow[]): StatsResult {
   const totalMatches = matches.length;
   const totalMaps = maps.length;
 
-  // nb équipes trackées
   const teamSet = new Set<string>();
   matches.forEach((m) => {
     if (m.team1_name) teamSet.add(m.team1_name);
@@ -606,7 +710,6 @@ function computeStats(matches: MatchRow[], maps: MapRow[]): StatsResult {
   });
   const trackedTeams = teamSet.size;
 
-  // join maps ←→ matches
   const matchesById = new Map<number, MatchRow>();
   matches.forEach((m) => matchesById.set(m.match_id, m));
   const mapsWithMatch = maps.map((map) => ({
@@ -614,7 +717,6 @@ function computeStats(matches: MatchRow[], maps: MapRow[]): StatsResult {
     match: matchesById.get(map.match_id),
   }));
 
-  // Pick par map
   const pickMapCount = new Map<string, number>();
   for (const m of mapsWithMatch) {
     pickMapCount.set(m.map_name, (pickMapCount.get(m.map_name) ?? 0) + 1);
@@ -623,7 +725,6 @@ function computeStats(matches: MatchRow[], maps: MapRow[]): StatsResult {
     .map(([map_name, count]) => ({ map_name, count }))
     .sort((a, b) => b.count - a.count);
 
-  // Résultats de BO (score final série)
   const boCounter = new Map<string, number>();
   for (const m of matches) {
     const s1 = Number(m.team1_score_bo);
@@ -638,7 +739,6 @@ function computeStats(matches: MatchRow[], maps: MapRow[]): StatsResult {
     .map(([label, count]) => ({ label, count }))
     .sort((a, b) => a.label.localeCompare(b.label));
 
-  // Stats par map
   const byMap = new Map<string, MapRow[]>();
   for (const m of mapsWithMatch) {
     if (!byMap.has(m.map_name)) byMap.set(m.map_name, []);
@@ -679,7 +779,6 @@ function computeStats(matches: MatchRow[], maps: MapRow[]): StatsResult {
     })
     .sort((a, b) => b.matches - a.matches);
 
-  // Stats par équipe (BestMap etc.)
   const teamIdByName = new Map<string, number>();
   for (const m of matches) {
     if (!teamIdByName.has(m.team1_name)) {
@@ -716,7 +815,7 @@ function computeStats(matches: MatchRow[], maps: MapRow[]): StatsResult {
 
     let bestMap = '';
     let bestMapMatches = 0;
-    let bestWinrate = 0;
+    let bestMapWr = 0;
 
     for (const [map_name, rows] of mapsByName.entries()) {
       const played = rows.length;
@@ -727,17 +826,13 @@ function computeStats(matches: MatchRow[], maps: MapRow[]): StatsResult {
       ).length;
       const wr = played > 0 ? winsOnMap / played : 0;
 
-      if (
-        wr > bestWinrate ||
-        (wr === bestWinrate && played > bestMapMatches)
-      ) {
+      if (wr > bestMapWr || (wr === bestMapWr && played > bestMapMatches)) {
         bestMap = map_name;
         bestMapMatches = played;
-        bestWinrate = wr;
+        bestMapWr = wr;
       }
     }
 
-    // Winrate affiché = winrate en BO, pas en maps
     let label = 'Aucune victoire';
     if (totalTeamMatches > 0 && matchesWon > 0) {
       const wrSeries = matchesWon / totalTeamMatches;
